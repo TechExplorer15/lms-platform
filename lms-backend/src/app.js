@@ -5,10 +5,18 @@ import lectureRoutes from "./routes/lecture.routes.js";
 import enrollmentRoutes from "./routes/enrollment.routes.js";
 import progressRoutes from "./routes/progress.routes.js";
 import errorHandler from "./middleware/error.middleware.js";
+import cors from "cors";
 
 const app = express();
 
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
 // Routes
 app.use("/api/auth", authRoutes);
