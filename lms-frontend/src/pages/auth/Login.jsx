@@ -19,7 +19,7 @@ const Login = () => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    });
+    });     
   };
 
   const handleSubmit = async (e) => {
@@ -29,7 +29,16 @@ const Login = () => {
       const res = await login(formData).unwrap();
 
       dispatch(setCredentials(res));
-      navigate("/");
+
+      const role = res.user.role;
+
+      if (role === "student") {
+        navigate("/student");
+      } else if (role === "instructor") {
+        navigate("/instructor");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       alert(err?.data?.message || "Login failed");
     }
