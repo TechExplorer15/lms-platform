@@ -4,7 +4,7 @@ import {
   useEnrollCourseMutation,
 } from "@/features/course/courseApi";
 import { useSelector } from "react-redux";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 
 const CourseDetails = () => {
   const { id } = useParams();

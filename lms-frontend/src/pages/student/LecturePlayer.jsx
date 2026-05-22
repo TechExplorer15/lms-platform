@@ -5,7 +5,7 @@ import {
   useGetLecturesQuery,
   useMarkCompleteMutation,
 } from "@/features/lecture/lectureApi";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 
 const LecturePlayer = () => {
   const { courseId } = useParams();

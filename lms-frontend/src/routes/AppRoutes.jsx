@@ -1,46 +1,91 @@
-import { Routes, Route } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-import Login from "@/pages/auth/Login";
-import Register from "@/pages/auth/Register";
+import PublicLayout from "@/layouts/PublicLayout";
+import DashboardLayout from "@/layouts/DashboardLayout";
 
-import Courses from "@/pages/public/Courses";
-import CourseDetails from "@/pages/public/CourseDetails";
+import PageLoader from "@/shared/ui/page-loader";
 
-import StudentDashboard from "@/pages/student/StudentDashboard";
-import InstructorDashboard from "@/pages/instructor/InstructorDashboard";
-import LecturePlayer from "@/pages/student/LecturePlayer";
+// Lazy Loaded Pages
 
-import ProtectedRoute from "@/routes/ProtectedRoute";
+const Courses = lazy(() => import("@/pages/public/Courses"));
 
-const Home = () => (
-  <div className="flex items-center justify-center h-[80vh]">
-    <h1 className="text-4xl font-bold">LMS Platform 🚀</h1>
-  </div>
-);
+const CourseDetails = lazy(() => import("@/pages/public/CourseDetails"));
 
-const AppRoutes = () => {
+const Login = lazy(() => import("@/pages/auth/Login"));
+
+const Register = lazy(() => import("@/pages/auth/Register"));
+
+const StudentDashboard = lazy(() => import("@/pages/student/StudentDashboard"));
+
+function AppRoutes() {
   return (
-    <Routes>
-      {/* Public */}
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/courses" element={<Courses />} />
-      <Route path="/courses/:id" element={<CourseDetails />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* PUBLIC ROUTES */}
 
-      {/* Student */}
-      <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-        <Route path="/student" element={<StudentDashboard />} />
+        <Route
+          path="/"
+          element={
+            <PublicLayout>
+              <Courses />
+            </PublicLayout>
+          }
+        />
 
-        <Route path="/course/:courseId/player" element={<LecturePlayer />} />
-      </Route>
+        <Route
+          path="/courses/:id"
+          element={
+            <PublicLayout>
+              <CourseDetails />
+            </PublicLayout>
+          }
+        />
 
-      {/* Instructor */}
-      <Route element={<ProtectedRoute allowedRoles={["instructor"]} />}>
-        <Route path="/instructor" element={<InstructorDashboard />} />
-      </Route>
-    </Routes>
+        {/* AUTH ROUTES */}
+
+        <Route
+          path="/login"
+          element={
+            <PublicLayout>
+              <Login />
+            </PublicLayout>
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <PublicLayout>
+              <Register />
+            </PublicLayout>
+          }
+        />
+
+        {/* STUDENT REDIRECT */}
+
+        <Route
+          path="/student"
+          element={<Navigate to="/student/dashboard" replace />}
+        />
+
+        {/* STUDENT ROUTES */}
+
+        <Route
+          path="/student/dashboard"
+          element={
+            <DashboardLayout>
+              <StudentDashboard />
+            </DashboardLayout>
+          }
+        />
+
+        {/* FALLBACK */}
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
-};
+}
 
 export default AppRoutes;

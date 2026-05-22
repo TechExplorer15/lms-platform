@@ -1,79 +1,90 @@
-import { useState } from "react";
-import { useLoginMutation } from "@/features/auth/authApi";
-import { useDispatch } from "react-redux";
-import { setCredentials } from "@/features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
-const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+import { Input } from "@/shared/ui/input";
+import { Button } from "@/shared/ui/button";
 
-  const [login, { isLoading }] = useLoginMutation();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });     
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await login(formData).unwrap();
-
-      dispatch(setCredentials(res));
-
-      const role = res.user.role;
-
-      if (role === "student") {
-        navigate("/student");
-      } else if (role === "instructor") {
-        navigate("/instructor");
-      } else {
-        navigate("/");
-      }
-    } catch (err) {
-      alert(err?.data?.message || "Login failed");
-    }
-  };
-
+function Login() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md p-6 bg-white rounded-lg shadow"
+    <div className="flex min-h-[80vh] items-center justify-center">
+      <div
+        className="
+          w-full max-w-md
+          rounded-2xl
+          border
+          bg-card
+          p-8
+          shadow-card
+        "
       >
-        <h2 className="text-xl font-bold mb-4">Login</h2>
+        {/* Header */}
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="w-full mb-3 p-2 border rounded"
-          onChange={handleChange}
-        />
+        <div className="mb-8 space-y-2 text-center">
+          <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="w-full mb-4 p-2 border rounded"
-          onChange={handleChange}
-        />
+          <p className="text-sm text-muted-foreground">
+            Login to continue your learning journey
+          </p>
+        </div>
 
-        <Button className="w-full" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
-        </Button>
-      </form>
+        {/* Form */}
+
+        <form className="space-y-5">
+          {/* Email */}
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Email</label>
+
+            <Input type="email" placeholder="Enter your email" />
+          </div>
+
+          {/* Password */}
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Password</label>
+
+            <Input type="password" placeholder="Enter your password" />
+          </div>
+
+          {/* Forgot Password */}
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              className="
+                text-sm
+                text-primary
+                transition-default
+                hover:opacity-80
+              "
+            >
+              Forgot password?
+            </button>
+          </div>
+
+          {/* Submit */}
+
+          <Button className="w-full">Login</Button>
+        </form>
+
+        {/* Footer */}
+
+        <div className="mt-6 text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link
+            to="/register"
+            className="
+              font-medium
+              text-primary
+              transition-default
+              hover:opacity-80
+            "
+          >
+            Create account
+          </Link>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
 export default Login;

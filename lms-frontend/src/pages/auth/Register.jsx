@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRegisterMutation } from "@/features/auth/authApi";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 
 const Register = () => {
   const [formData, setFormData] = useState({

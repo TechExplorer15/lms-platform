@@ -1,0 +1,44 @@
+@layer utilities {
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .transition-default {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-md dark:bg-slate-900/80;
+  }
+
+  .page-container {
+    @apply container py-6 md:py-8;
+  }
+
+  .dashboard-spacing {
+    @apply p-4 md:p-6 lg:p-8;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-indigo-500 to-blue-500 bg-clip-text text-transparent;
+  }
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}

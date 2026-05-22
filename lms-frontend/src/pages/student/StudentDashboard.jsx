@@ -1,19 +1,65 @@
-import { Link } from "react-router-dom";
+import { Button } from "@/shared/ui/button";
 
-const StudentDashboard = () => {
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/ui/card";
+
+import { Skeleton } from "@/shared/ui/skeleton";
+import { Spinner } from "@/shared/ui/spinner";
+import { EmptyState } from "@/shared/ui/empty-state";
+
+function StudentDashboard() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Student Dashboard</h1>
+    <div className="space-y-8">
+      {/* Header */}
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Continue Learning</h2>
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Dashboard UI System
+        </h1>
 
-        <Link to="/courses" className="text-indigo-600 font-medium">
-          Browse Courses →
-        </Link>
+        <p className="mt-2 text-muted-foreground">
+          Testing reusable production components.
+        </p>
       </div>
+
+      {/* Skeletons */}
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <Skeleton className="h-32 w-full" />
+
+        <Skeleton className="h-32 w-full" />
+
+        <Skeleton className="h-32 w-full" />
+      </div>
+
+      {/* Spinner */}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Loading States</CardTitle>
+
+          <CardDescription>Reusable spinner component.</CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <Spinner className="h-8 w-8 text-primary" />
+        </CardContent>
+      </Card>
+
+      {/* Empty State */}
+
+      <EmptyState
+        title="No courses enrolled"
+        description="Start learning by enrolling in your first course."
+        action={<Button>Browse Courses</Button>}
+      />
     </div>
   );
-};
+}
 
 export default StudentDashboard;
