@@ -1,44 +1,92 @@
 import Lecture from "../models/lecture.js";
 
-// ✅ CREATE LECTURE
+// Get Lectures
+
+export const getLectures = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const lectures = await Lecture.find({
+      course: courseId,
+    });
+
+    res.status(200).json({
+      lectures,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to fetch lectures",
+    });
+  }
+};
+
+// Create Lecture
+
 export const createLecture = async (req, res) => {
   try {
-    const { title, videoUrl, course } = req.body;
+    const { courseId } = req.params;
 
-    if (!title || !videoUrl || !course) {
+    const { title, videoUrl, notes } = req.body;
+
+    // Validation
+
+    if (!title || !videoUrl) {
       return res.status(400).json({
         message: "All fields are required",
       });
     }
 
+    // Calculate order
+    const existingLecturesCount = await Lecture.countDocuments({ course: courseId });
+    const order = existingLecturesCount + 1;
+
+    // Create
     const lecture = await Lecture.create({
       title,
       videoUrl,
-      course,
+      notes,
+      course: courseId,
+      order,
     });
 
     res.status(201).json({
       message: "Lecture created successfully",
+
       lecture,
     });
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       message: "Failed to create lecture",
     });
   }
 };
 
-// ✅ GET LECTURES
-export const getLecturesByCourse = async (req, res) => {
+// Delete Lecture
+
+export const deleteLecture = async (req, res) => {
   try {
-    const { courseId } = req.params;
+    const { lectureId } = req.params;
 
-    const lectures = await Lecture.find({ course: courseId });
+    const lecture = await Lecture.findByIdAndDelete(lectureId);
 
-    res.json({ lectures });
+    if (!lecture) {
+      return res.status(404).json({
+        message: "Lecture not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Lecture deleted successfully",
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to fetch lectures" });
+
+    res.status(500).json({
+      message: "Failed to delete lecture",
+    });
   }
 };

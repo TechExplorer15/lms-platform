@@ -6,7 +6,7 @@ function Skeleton({ className, ...props }) {
       className={cn(
         `
           animate-pulse
-          rounded-xl
+          rounded-none
           bg-muted
         `,
         className,

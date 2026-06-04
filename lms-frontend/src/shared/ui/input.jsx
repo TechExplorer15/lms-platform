@@ -9,7 +9,7 @@ const Input = React.forwardRef(
         type={type}
         className={cn(
           `
-            flex h-10 w-full rounded-xl
+            flex h-10 w-full rounded-none
             border border-input
             bg-background
             px-4 py-2

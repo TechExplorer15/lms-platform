@@ -10,6 +10,9 @@ const lectureSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    notes: {
+      type: String,
+    },
     course: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Course",

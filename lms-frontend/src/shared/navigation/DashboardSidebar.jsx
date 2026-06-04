@@ -1,56 +1,33 @@
 import { useState } from "react";
+
 import { NavLink } from "react-router-dom";
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  BookOpen,
-  GraduationCap,
-  LayoutDashboard,
-  Settings,
-} from "lucide-react";
-
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSelector } from "react-redux";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/student/dashboard",
-  },
-
-  {
-    title: "My Courses",
-    icon: BookOpen,
-    href: "/student/courses",
-  },
-
-  {
-    title: "Learning",
-    icon: GraduationCap,
-    href: "/student/learning",
-  },
-
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings",
-  },
-];
+import { navigationConfig } from "@/config/navigation";
+import { Logo } from "@/components/common/Logo";
 
 function DashboardSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+
+  const { user } = useSelector((state) => state.auth);
+  const baseRole = user?.primaryType?.toLowerCase() || user?.role?.toLowerCase() || "student";
+  const isInstructor = baseRole === "instructor" || (baseRole === "user" && user?.capabilities?.canTeach);
+  const role = isInstructor ? "instructor" : baseRole;
+
+  const navItems = navigationConfig[role] || [];
 
   return (
     <aside
       className={cn(
         `
           hidden md:flex
-          min-h-screen
           flex-col
-          border-r
-          bg-card
-          transition-all duration-300
+          h-[calc(100vh-2rem)] my-4 ml-4 rounded-none
+          bg-black/60 backdrop-blur-xl border border-border/50 shadow-none
+          transition-all duration-300 z-50
         `,
         collapsed ? "w-[90px]" : "w-[280px]",
       )}
@@ -59,20 +36,20 @@ function DashboardSidebar() {
 
       <div
         className="
-          flex h-16 items-center
-          justify-between border-b px-4
+          flex h-20 items-center
+          justify-between px-6 pt-2
         "
       >
         {!collapsed && (
-          <h1 className="text-lg font-bold tracking-tight">LMS Platform</h1>
+          <Logo className="h-6 text-primary" showText={true} />
         )}
 
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="
-            rounded-lg border p-2
-            hover:bg-muted
+            rounded-full border border-border bg-transparent p-2 text-muted-foreground
             transition-default
+            hover:bg-muted hover:text-foreground
           "
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
@@ -93,20 +70,23 @@ function DashboardSidebar() {
                 cn(
                   `
                     flex items-center gap-3
-                    rounded-xl px-4 py-3
+                    rounded-full px-5 py-3
                     text-sm font-medium
                     transition-all duration-200
                   `,
                   isActive
                     ? `
-                      bg-primary
-                      text-primary-foreground
-                      shadow-soft
+                      bg-primary/10
+                      text-primary
+                      border border-primary/30
+                      rounded-none
                     `
                     : `
                       text-muted-foreground
-                      hover:bg-muted
-                      hover:text-foreground
+                      hover:bg-black
+                      hover:text-primary
+                      border border-transparent
+                      rounded-none
                     `,
                 )
               }

@@ -1,43 +1,21 @@
 import * as Dialog from "@radix-ui/react-dialog";
 
-import {
-  Menu,
-  X,
-  BookOpen,
-  GraduationCap,
-  LayoutDashboard,
-  Settings,
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const navItems = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/student/dashboard",
-  },
-
-  {
-    title: "My Courses",
-    icon: BookOpen,
-    href: "/student/courses",
-  },
-
-  {
-    title: "Learning",
-    icon: GraduationCap,
-    href: "/student/learning",
-  },
-
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings",
-  },
-];
+import { navigationConfig } from "@/config/navigation";
+import { Logo } from "@/components/common/Logo";
 
 function MobileSidebar() {
+  const { user } = useSelector((state) => state.auth);
+  const baseRole = user?.primaryType?.toLowerCase() || user?.role?.toLowerCase() || "student";
+  const isInstructor = baseRole === "instructor" || (baseRole === "user" && user?.capabilities?.canTeach);
+  const role = isInstructor ? "instructor" : baseRole;
+
+  const navItems = navigationConfig[role] || [];
+
   return (
     <Dialog.Root>
       {/* Trigger */}
@@ -63,8 +41,7 @@ function MobileSidebar() {
         <Dialog.Overlay
           className="
             fixed inset-0 z-50
-            bg-black/50
-            backdrop-blur-sm
+            bg-black/50 backdrop-blur-sm
           "
         />
 
@@ -86,7 +63,7 @@ function MobileSidebar() {
               justify-between
             "
           >
-            <h2 className="text-xl font-bold">LMS Platform</h2>
+            <Logo className="h-6 text-foreground" showText={true} />
 
             <Dialog.Close asChild>
               <button

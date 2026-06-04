@@ -18,6 +18,10 @@ export default {
     },
 
     extend: {
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+        serif: ["Inter", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -63,9 +67,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
 
-      fontFamily: {
-        sans: ["Inter", "sans-serif"],
-      },
+
 
       keyframes: {
         "accordion-down": {
@@ -77,17 +79,30 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        
+        "aurora": {
+          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+          "50%": { transform: "translate(-20px, 20px) scale(1.1)" },
+        },
+        
+        "spin-reverse": {
+          to: {
+            transform: "rotate(-360deg)",
+          },
+        }
       },
 
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "aurora": "aurora 10s ease-in-out infinite alternate",
+        "spin-reverse": "spin-reverse 1s linear infinite",
       },
 
       boxShadow: {
-        soft: "0 2px 10px rgba(15, 23, 42, 0.04)",
-        card: "0 1px 2px rgba(15, 23, 42, 0.06)",
-        elevated: "0 8px 30px rgba(15, 23, 42, 0.08)",
+        soft: "0 4px 20px rgba(212, 175, 55, 0.05)",
+        card: "0 2px 8px rgba(212, 175, 55, 0.08)",
+        elevated: "0 10px 40px rgba(212, 175, 55, 0.15)",
       },
     },
   },

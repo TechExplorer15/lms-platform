@@ -1,0 +1,35 @@
+import { useSelector } from "react-redux";
+import { useVerifyAuthQuery } from "@/features/auth/authApi";
+import { useState, useEffect } from "react";
+import SplashScreen from "@/components/common/SplashScreen";
+
+const PersistLogin = ({ children }) => {
+  const { token } = useSelector((state) => state.auth);
+  
+  // Enforce a minimum display time (e.g., 2.8 seconds) so the intro animation finishes
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Only skip the query if we already have a token in memory
+  const { isLoading: isAuthLoading } = useVerifyAuthQuery(undefined, {
+    skip: !!token,
+  });
+
+  useEffect(() => {
+    // Artificial delay to let the Framer Motion animation play out
+    // Reduced to 2400ms since the animation is much snappier now
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2400); 
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show splash if EITHER the auth check is running OR the artificial timer is running
+  if (isAuthLoading || showSplash) {
+    return <SplashScreen />;
+  }
+
+  return children;
+};
+
+export default PersistLogin;

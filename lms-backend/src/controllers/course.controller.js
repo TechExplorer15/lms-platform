@@ -1,95 +1,82 @@
-import {
-  createCourseService,
-  getAllCoursesService,
-  getCourseDetailsService,
-  updateCourseService,
-  deleteCourseService,
-} from "../services/course.service.js";
+import asyncHandler from "../utils/asyncHandler.js";
+import courseService from "../services/course.service.js";
+import { sendSuccess, sendCreated } from "../utils/response.js";
+import cloudinary from "../config/cloudinary.js"; // Can keep here for file upload mapping or move to service. Let's handle upload URL here.
+import { ForbiddenError } from "../utils/AppError.js";
 
-// CREATE
-export const createCourse = async (req, res, next) => {
-  try {
-    const { title, description, price, thumbnail } = req.body;
+// GET /api/courses
+export const getCourses = asyncHandler(async (req, res) => {
+  const courses = await courseService.getPublishedCourses();
+  sendSuccess(res, { courses });
+});
 
-    if (!title || !description) {
-      return res.status(400).json({
-        message: "Title and description are required",
-      });
+// GET /api/courses/:id
+export const getCourseById = asyncHandler(async (req, res) => {
+  const { course, lectures } = await courseService.getCourseDetails(req.params.id);
+
+  // Access Control: If course is not published, only the instructor (or admin) can view it
+  if (course.status !== "published") {
+    const isOwner = req.user && course.instructor._id.toString() === req.user.id;
+    const isAdmin = req.user && req.user.primaryType === "admin";
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenError("This course is not published yet");
     }
-
-    const course = await createCourseService({
-      title,
-      description,
-      price,
-      thumbnail,
-    });
-
-    res.status(201).json({
-      message: "Course created successfully",
-      course,
-    });
-  } catch (error) {
-    next(error);
   }
-};
 
-// READ ALL
-export const getAllCourses = async (req, res, next) => {
-  try {
-    const courses = await getAllCoursesService();
+  sendSuccess(res, { course, lectures });
+});
 
-    res.status(200).json({
-      message: "Courses fetched successfully",
-      courses,
+// GET /api/courses/instructor/:instructorId
+export const getInstructorCourses = asyncHandler(async (req, res) => {
+  const courses = await courseService.getInstructorCourses(req.params.instructorId);
+  sendSuccess(res, { courses });
+});
+
+// POST /api/courses
+export const createCourse = asyncHandler(async (req, res) => {
+  let thumbnail = "";
+
+  if (req.file) {
+    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+    const result = await cloudinary.uploader.upload(base64, {
+      folder: "lms-thumbnails",
     });
-  } catch (error) {
-    next(error);
+    thumbnail = result.secure_url;
   }
-};
 
-// READ ONE
-export const getCourseDetails = async (req, res, next) => {
-  try {
-    const { courseId } = req.params;
+  const course = await courseService.createCourse(req.validatedBody, req.user.id, thumbnail);
+  sendCreated(res, { message: "Course created successfully", course });
+});
 
-    const data = await getCourseDetailsService(courseId);
+// PUT /api/courses/:courseId
+export const updateCourse = asyncHandler(async (req, res) => {
+  const course = await courseService.updateCourse(req.params.courseId, req.user.id, req.validatedBody);
+  sendSuccess(res, { message: "Course updated successfully", course });
+});
 
-    res.status(200).json({
-      message: "Course details fetched",
-      ...data,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+// DELETE /api/courses/:courseId
+export const deleteCourse = asyncHandler(async (req, res) => {
+  await courseService.deleteCourse(req.params.courseId, req.user.id);
+  sendSuccess(res, { message: "Course deleted successfully" });
+});
 
-// UPDATE
-export const updateCourse = async (req, res, next) => {
-  try {
-    const { courseId } = req.params;
+// PUT /api/courses/:courseId/submit-for-approval
+export const submitForApproval = asyncHandler(async (req, res) => {
+  const course = await courseService.submitForApproval(
+    req.params.courseId, 
+    req.user.id, 
+    req.validatedBody.approvalDocs
+  );
+  sendSuccess(res, { message: "Course submitted for approval", course });
+});
 
-    const updatedCourse = await updateCourseService(courseId, req.body);
-
-    res.status(200).json({
-      message: "Course updated successfully",
-      course: updatedCourse,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// DELETE
-export const deleteCourse = async (req, res, next) => {
-  try {
-    const { courseId } = req.params;
-
-    await deleteCourseService(courseId);
-
-    res.status(200).json({
-      message: "Course deleted successfully",
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+// POST /api/courses/:courseId/review (Admin)
+export const reviewCourse = asyncHandler(async (req, res) => {
+  const { status, rejectionReason } = req.validatedBody;
+  const course = await courseService.reviewCourse(req.params.courseId, status, rejectionReason);
+  
+  sendSuccess(res, { 
+    message: `Course has been ${status}`, 
+    course 
+  });
+});

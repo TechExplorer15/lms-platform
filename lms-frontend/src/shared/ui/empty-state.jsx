@@ -13,11 +13,10 @@ function EmptyState({
     <div
       className={cn(
         `
-          flex flex-col items-center justify-center
-          rounded-2xl border border-dashed
-          bg-card
-          px-6 py-16
-          text-center
+          flex flex-col items-center
+          justify-center gap-4
+          rounded-none border border-border/50 bg-black/40
+          p-10 text-center
         `,
         className,
       )}

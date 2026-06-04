@@ -1,93 +1,109 @@
-import User from "../models/user.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+/**
+ * Auth Controller
+ * THIN — only handles HTTP (req/res). All logic is in AuthService.
+ * Uses asyncHandler so no try/catch needed.
+ * Uses sendSuccess/sendCreated for consistent responses.
+ */
 
-// REGISTER (if you already have, keep it — else use this)
-export const registerUser = async (req, res, next) => {
-  try {
-    const { name, email, password, role } = req.body;
+import asyncHandler from "../utils/asyncHandler.js";
+import authService from "../services/auth.service.js";
+import { sendSuccess, sendCreated } from "../utils/response.js";
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        message: "All fields are required",
-      });
-    }
+const setTokenCookie = (res, token, rememberMe = false) => {
+  const maxAge = rememberMe 
+    ? 30 * 24 * 60 * 60 * 1000 // 30 days
+    : 24 * 60 * 60 * 1000;     // 24 hours
 
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role,
-    });
-
-    res.status(201).json({
-      message: "User registered successfully",
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.cookie("refreshToken", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    maxAge,
+  });
 };
 
-// LOGIN (IMPORTANT)
-export const loginUser = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+// ─── REGISTER ────────────────────────────────────────────────────
+export const registerUser = asyncHandler(async (req, res) => {
+  // req.validatedBody comes from Zod validation middleware
+  const { accessToken, refreshToken, user } = await authService.register(req.validatedBody);
 
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Email and password are required",
-      });
-    }
+  setTokenCookie(res, refreshToken);
 
-    const user = await User.findOne({ email });
+  sendCreated(res, {
+    message: "User registered successfully",
+    token: accessToken,
+    user,
+  });
+});
 
-    if (!user) {
-      return res.status(400).json({
-        message: "Invalid credentials",
-      });
-    }
+// ─── LOGIN ───────────────────────────────────────────────────────
+export const loginUser = asyncHandler(async (req, res) => {
+  const { rememberMe, ...loginData } = req.validatedBody;
+  const { accessToken, refreshToken, user } = await authService.login(loginData);
 
-    const isMatch = await bcrypt.compare(password, user.password);
+  setTokenCookie(res, refreshToken, rememberMe);
 
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Invalid credentials",
-      });
-    }
+  sendSuccess(res, {
+    message: "Login successful",
+    token: accessToken,
+    user,
+  });
+});
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      },
-    );
+// ─── REFRESH TOKEN ───────────────────────────────────────────────
+export const refreshToken = asyncHandler(async (req, res) => {
+  const oldToken = req.cookies?.refreshToken;
+  
+  const { accessToken, refreshToken: newRefreshToken, user } = await authService.refresh(oldToken);
 
-    res.status(200).json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    next(error);
+  setTokenCookie(res, newRefreshToken);
+
+  sendSuccess(res, {
+    message: "Token refreshed successfully",
+    token: accessToken,
+    user,
+  });
+});
+
+// ─── LOGOUT ──────────────────────────────────────────────────────
+export const logoutUser = asyncHandler(async (req, res) => {
+  const token = req.cookies?.refreshToken;
+  
+  if (token && req.user) {
+    await authService.logout(req.user.id, token);
   }
-};
+
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+  });
+
+  sendSuccess(res, {
+    message: "Logged out successfully",
+  });
+});
+
+// ─── FORGOT PASSWORD ─────────────────────────────────────────────
+export const forgotPassword = asyncHandler(async (req, res) => {
+  await authService.forgotPassword(
+    req.validatedBody.email,
+    req.headers.origin,
+  );
+
+  sendSuccess(res, {
+    message: "Password reset email sent successfully",
+  });
+});
+
+// ─── RESET PASSWORD ──────────────────────────────────────────────
+export const resetPassword = asyncHandler(async (req, res) => {
+  await authService.resetPassword(
+    req.params.resetToken,
+    req.validatedBody.password,
+  );
+
+  sendSuccess(res, {
+    message: "Password updated successfully",
+  });
+});

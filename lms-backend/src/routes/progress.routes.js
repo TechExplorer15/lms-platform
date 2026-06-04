@@ -1,8 +1,18 @@
 import express from "express";
-import { updateProgress } from "../controllers/progress.controller.js";
+
+import {
+  markLectureComplete,
+  getCourseProgress,
+} from "../controllers/progress.controller.js";
 
 const router = express.Router();
 
-router.post("/", updateProgress);
+// MARK COMPLETE
+
+router.post("/", markLectureComplete);
+
+// GET PROGRESS
+
+router.get("/:userId/:courseId", getCourseProgress);
 
 export default router;

@@ -1,40 +1,85 @@
 import express from "express";
+
 import {
+  getCourses,
+  getCourseById,
   createCourse,
-  getAllCourses,
-  getCourseDetails,
+  getInstructorCourses,
   updateCourse,
   deleteCourse,
+  submitForApproval,
+  reviewCourse,
 } from "../controllers/course.controller.js";
 
-import authMiddleware from "../middleware/auth.middleware.js";
-import roleMiddleware from "../middleware/role.middleware.js";
+import authMiddleware, { optionalAuthMiddleware } from "../middleware/auth.middleware.js";
+import requireCapability from "../middleware/capability.middleware.js";
+import upload from "../middleware/upload.middleware.js";
+import { validate } from "../middleware/validate.middleware.js";
+import { 
+  createCourseSchema, 
+  submitCourseSchema, 
+  reviewCourseSchema 
+} from "../validators/course.validator.js";
 
 const router = express.Router();
 
-// CREATE (only instructor)
-router.post("/", authMiddleware, roleMiddleware("instructor"), createCourse);
+// Get All Published Courses (Public)
+router.get("/", getCourses);
 
-// READ ALL (public)
-router.get("/", getAllCourses);
+// Get Course By ID (includes unpublished if owner/admin) - optional auth
+router.get("/:id", optionalAuthMiddleware, getCourseById);
 
-// READ ONE (public)
-router.get("/:courseId", getCourseDetails);
-
-// UPDATE (only instructor)
-router.put(
-  "/:courseId",
+// Get Instructor Courses
+router.get(
+  "/instructor/:instructorId",
   authMiddleware,
-  roleMiddleware("instructor"),
-  updateCourse,
+  requireCapability("canTeach"),
+  getInstructorCourses,
 );
 
-// DELETE (only instructor)
-router.delete(
-  "/:courseId",
+// Create Course
+router.post(
+  "/", 
   authMiddleware,
-  roleMiddleware("instructor"),
-  deleteCourse,
+  requireCapability("canTeach"), 
+  upload.single("thumbnail"), 
+  validate(createCourseSchema),
+  createCourse
+);
+
+// Update Course
+router.put(
+  "/:courseId", 
+  authMiddleware,
+  requireCapability("canTeach"), 
+  validate(createCourseSchema), 
+  updateCourse
+);
+
+// Delete Course
+router.delete(
+  "/:courseId", 
+  authMiddleware,
+  requireCapability("canTeach"), 
+  deleteCourse
+);
+
+// Submit for Approval
+router.put(
+  "/:courseId/submit-for-approval",
+  authMiddleware,
+  requireCapability("canTeach"),
+  validate(submitCourseSchema),
+  submitForApproval
+);
+
+// Review Course (Admin Only)
+router.post(
+  "/:courseId/review",
+  authMiddleware,
+  requireCapability("admin_only"), // primaryType === "admin" bypasses capability check, so this is admin only
+  validate(reviewCourseSchema),
+  reviewCourse
 );
 
 export default router;

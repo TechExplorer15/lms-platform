@@ -1,50 +1,96 @@
-import Course from "../models/course.js";
+import courseRepository from "../repositories/course.repository.js";
 import Lecture from "../models/lecture.js";
+import { NotFoundError, ForbiddenError, BadRequestError } from "../utils/AppError.js";
 
-// CREATE
-export const createCourseService = async (data) => {
-  return await Course.create(data);
-};
-
-// READ ALL
-export const getAllCoursesService = async () => {
-  return await Course.find().sort({ createdAt: -1 });
-};
-
-// READ ONE (DETAILS)
-export const getCourseDetailsService = async (courseId) => {
-  const course = await Course.findById(courseId);
-
-  if (!course) {
-    throw new Error("Course not found");
+class CourseService {
+  async getPublishedCourses() {
+    return courseRepository.find({ status: "published" });
   }
 
-  const lectures = await Lecture.find({ course: courseId }).sort({ order: 1 });
-
-  return { course, lectures };
-};
-
-// UPDATE
-export const updateCourseService = async (courseId, data) => {
-  const course = await Course.findByIdAndUpdate(courseId, data, { new: true });
-
-  if (!course) {
-    throw new Error("Course not found");
+  async getCourseById(id) {
+    const course = await courseRepository.findById(id);
+    if (!course) throw new NotFoundError("Course not found");
+    return course;
   }
 
-  return course;
-};
-
-// DELETE
-export const deleteCourseService = async (courseId) => {
-  const course = await Course.findByIdAndDelete(courseId);
-
-  if (!course) {
-    throw new Error("Course not found");
+  async getCourseDetails(courseId) {
+    const course = await this.getCourseById(courseId);
+    
+    // Only published courses should be visible to normal users, unless they own it
+    // That access control check can be done in the controller, but here we just fetch it
+    const lectures = await Lecture.find({ course: courseId }).sort({ order: 1 });
+    
+    return { course, lectures }; 
   }
 
-  // Optional: also delete related lectures
-  await Lecture.deleteMany({ course: courseId });
+  async getInstructorCourses(instructorId) {
+    return courseRepository.find({ instructor: instructorId });
+  }
 
-  return course;
-};
+  async createCourse(courseData, instructorId, thumbnail) {
+    return courseRepository.create({
+      ...courseData,
+      instructor: instructorId,
+      thumbnail,
+      status: "draft", // Always starts as draft
+    });
+  }
+
+  async updateCourse(courseId, instructorId, updateData) {
+    const course = await this.getCourseById(courseId);
+
+    if (course.instructor._id.toString() !== instructorId) {
+      throw new ForbiddenError("You can only edit your own courses");
+    }
+
+    if (course.status === "pending" || course.status === "published") {
+      throw new BadRequestError("Cannot edit a course that is pending or published");
+    }
+
+    return courseRepository.updateById(courseId, updateData);
+  }
+
+  async deleteCourse(courseId, instructorId) {
+    const course = await this.getCourseById(courseId);
+
+    if (course.instructor._id.toString() !== instructorId) {
+      throw new ForbiddenError("You can only delete your own courses");
+    }
+
+    await courseRepository.deleteById(courseId);
+    await Lecture.deleteMany({ course: courseId });
+  }
+
+  async submitForApproval(courseId, instructorId, approvalDocs) {
+    const course = await this.getCourseById(courseId);
+
+    if (course.instructor._id.toString() !== instructorId) {
+      throw new ForbiddenError("You can only submit your own courses");
+    }
+
+    if (course.status !== "draft" && course.status !== "rejected") {
+      throw new BadRequestError("Course must be in draft or rejected status to submit");
+    }
+
+    return courseRepository.updateById(courseId, {
+      status: "pending",
+      approvalDocs,
+      rejectionReason: null, // Clear any previous rejection
+    });
+  }
+
+  async reviewCourse(courseId, status, rejectionReason) {
+    const course = await this.getCourseById(courseId);
+
+    if (course.status !== "pending") {
+      throw new BadRequestError("Only pending courses can be reviewed");
+    }
+
+    return courseRepository.updateById(courseId, {
+      status,
+      rejectionReason: status === "rejected" ? rejectionReason : null,
+    });
+  }
+}
+
+export default new CourseService();
