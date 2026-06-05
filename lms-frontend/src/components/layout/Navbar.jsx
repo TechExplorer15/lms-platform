@@ -26,33 +26,17 @@ function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const [scrolled, setScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
   const [logoutApi] = useLogoutMutation();
 
   // Scroll Effect
-
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Check if user scrolled past 20px
-      setScrolled(currentScrollY > 20);
-      
-      // Hide on scroll down, show on scroll up
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-      
-      setLastScrollY(currentScrollY);
+      setScrolled(window.scrollY > 20);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   // Close Mobile Menu On Route Change
 
@@ -91,7 +75,6 @@ function Navbar() {
       className={`
         sticky top-0 z-50
         transition-all duration-300
-        ${isVisible ? "translate-y-0" : "-translate-y-full"}
         ${
           scrolled
             ? `

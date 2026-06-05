@@ -262,7 +262,7 @@ class AIService {
         "type": "String - 'documentation' | 'video' | 'article' | 'interactive'",
         "sourceName": "String - e.g. 'Traversy Media' or 'React Docs'",
         "estimatedTime": "String - e.g. '15 mins' or '2 hours'",
-        "description": "String - One sentence: what specifically to learn from this for someone doing ${assignmentBrief}"
+        "description": "String - One sentence: what specifically to learn from this for someone doing ${nodeDescription}"
       }
     `;
     

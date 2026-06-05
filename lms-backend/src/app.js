@@ -24,6 +24,7 @@ import feedbackRoutes from "./routes/feedback.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
 
 const app = express();
+app.set("trust proxy", 1);
 
 // ─── Security Middleware ─────────────────────────────────────────
 // Helmet: sets secure HTTP headers (XSS protection, clickjacking, etc.)

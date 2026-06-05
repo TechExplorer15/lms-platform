@@ -28,7 +28,7 @@ class CareerRepository {
     return CareerProfile.findOneAndUpdate(
       { user: userId },
       { ...profileData, user: userId },
-      { new: true, upsert: true, runValidators: true }
+      { returnDocument: "after", upsert: true, runValidators: true }
     );
   }
 
@@ -41,7 +41,7 @@ class CareerRepository {
     return Roadmap.findOneAndUpdate(
       { user: userId },
       { ...roadmapData, user: userId },
-      { new: true, upsert: true, runValidators: true }
+      { returnDocument: "after", upsert: true, runValidators: true }
     ).populate("nodes.linkedCourses");
   }
 
@@ -49,7 +49,7 @@ class CareerRepository {
     return Roadmap.findOneAndUpdate(
       { user: userId, "nodes._id": nodeId },
       { $set: { "nodes.$.status": status } },
-      { new: true }
+      { returnDocument: "after" }
     );
   }
 

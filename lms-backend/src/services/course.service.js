@@ -32,7 +32,7 @@ class CourseService {
       ...courseData,
       instructor: instructorId,
       thumbnail,
-      status: "draft", // Always starts as draft
+      status: "published", // Auto-publish so it appears immediately
     });
   }
 
