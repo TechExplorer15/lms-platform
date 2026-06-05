@@ -49,8 +49,8 @@ function DashboardTopbar() {
   };
 
   return (
-    <div className={`fixed top-0 left-0 right-0 z-50 p-4 md:p-6 pointer-events-none transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"}`}>
-      <header className="mx-auto max-w-7xl h-16 px-6 md:px-8 bg-background/70 backdrop-blur-2xl border border-border/50 rounded-full shadow-lg shadow-black/5 dark:shadow-black/20 flex items-center justify-between transition-colors duration-300 pointer-events-auto">
+    <div className={`fixed top-0 left-0 right-0 z-[100] p-4 md:p-6 pointer-events-none transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"}`}>
+      <header className="relative mx-auto max-w-7xl h-16 px-6 md:px-8 bg-background/70 backdrop-blur-2xl border border-border/50 rounded-full shadow-lg shadow-black/5 dark:shadow-black/20 flex items-center justify-between transition-colors duration-300 pointer-events-auto">
         
         {/* BRANDING */}
         <div className="flex items-center gap-8">
@@ -108,7 +108,7 @@ function DashboardTopbar() {
             </button>
 
             {/* Dropdown Menu */}
-            <div className="absolute right-0 mt-2 w-56 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50">
+            <div className="absolute right-0 mt-2 w-56 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-[999] pointer-events-auto">
               <div className="bg-popover border border-border/50 rounded-2xl shadow-xl overflow-hidden p-2">
                 <div className="px-3 py-2 border-b border-border/50 mb-2 sm:hidden">
                    <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>

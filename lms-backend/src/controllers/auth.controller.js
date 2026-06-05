@@ -16,8 +16,8 @@ const setTokenCookie = (res, token, rememberMe = false) => {
 
   res.cookie("refreshToken", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    secure: true,
+    sameSite: "none",
     maxAge,
   });
 };
@@ -75,8 +75,8 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    secure: true,
+    sameSite: "none",
   });
 
   sendSuccess(res, {

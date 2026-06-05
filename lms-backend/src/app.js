@@ -44,9 +44,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // General API rate limit
 app.use("/api", apiLimiter);
 
-// Stricter limit on auth routes (brute-force protection)
-app.use("/api/auth", authLimiter);
-
 // ─── Routes ──────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
