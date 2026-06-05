@@ -129,19 +129,21 @@ function Navbar() {
             )}
           </Link>
 
-          <Link
-            to="/courses"
-            className={`
-              px-2 py-2 text-sm font-bold uppercase tracking-widest transition-all
-              hover:text-primary relative group
-              ${location.pathname.startsWith("/courses") ? "text-primary" : "text-muted-foreground"}
-            `}
-          >
-            Courses
-            {location.pathname.startsWith("/courses") && (
-              <span className="absolute -bottom-1 left-1/2 w-1 h-1 bg-primary rounded-full -translate-x-1/2" />
-            )}
-          </Link>
+          {!isInstructor && (
+            <Link
+              to="/courses"
+              className={`
+                px-2 py-2 text-sm font-bold uppercase tracking-widest transition-all
+                hover:text-primary relative group
+                ${location.pathname.startsWith("/courses") ? "text-primary" : "text-muted-foreground"}
+              `}
+            >
+              Courses
+              {location.pathname.startsWith("/courses") && (
+                <span className="absolute -bottom-1 left-1/2 w-1 h-1 bg-primary rounded-full -translate-x-1/2" />
+              )}
+            </Link>
+          )}
 
           {user && (
             <Link
@@ -231,17 +233,19 @@ function Navbar() {
               Home
             </Link>
 
-            <Link
-              to="/courses"
-              className="
-                px-4 py-3
-                text-sm font-bold uppercase tracking-widest
-                transition-all
-                hover:bg-primary/10 hover:text-primary
-              "
-            >
-              Courses
-            </Link>
+            {!isInstructor && (
+              <Link
+                to="/courses"
+                className="
+                  px-4 py-3
+                  text-sm font-bold uppercase tracking-widest
+                  transition-all
+                  hover:bg-primary/10 hover:text-primary
+                "
+              >
+                Courses
+              </Link>
+            )}
 
             {user && (
               <Link

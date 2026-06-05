@@ -23,9 +23,9 @@ export const lectureApi = apiSlice.injectEndpoints({
 
     markComplete: builder.mutation({
       query: ({ lectureId, userId }) => ({
-        url: `/progress/complete/${lectureId}`,
+        url: "/progress",
         method: "POST",
-        body: { userId },
+        body: { userId, lectureId },
       }),
       invalidatesTags: ["Progress"],
     }),

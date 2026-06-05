@@ -30,8 +30,8 @@ function InstructorDashboard() {
   const courses = data?.data?.courses || data?.courses || [];
   
   // Calculate some aggregate metrics for the dashboard
-  const totalStudents = courses.reduce((acc, c) => acc + (c.enrollmentCount || 0), 0) + (courses.length * 12); // Simulated base students
-  const totalModules = courses.reduce((acc, c) => acc + (c.modules?.length || 0), 0) + (courses.length * 5); // Simulated modules
+  const totalStudents = courses.reduce((acc, c) => acc + (c.enrollmentCount || 0), 0);
+  const totalModules = courses.reduce((acc, c) => acc + (c.modules?.length || 0), 0);
   const avgRating = courses.length > 0 ? 4.8 : 0.0;
 
   // LOADING STATE

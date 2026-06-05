@@ -15,6 +15,9 @@ function Settings() {
   const [updateUserProfile, { isLoading: isUpdatingUser }] = useUpdateUserProfileMutation();
   
   const profile = profileRes?.data?.profile;
+  const baseRole = user?.primaryType?.toLowerCase() || user?.role?.toLowerCase();
+  const isInstructor = baseRole === "instructor" || (baseRole === "user" && user?.capabilities?.canTeach);
+  const showCareerTab = !isInstructor && baseRole !== "admin";
 
   const [activeTab, setActiveTab] = useState("general");
 
@@ -130,28 +133,30 @@ function Settings() {
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-2 border-b border-border/50 pb-px overflow-x-auto no-scrollbar">
+      <div className="flex space-x-6 border-b border-border/50 pb-px overflow-x-auto no-scrollbar">
         <button 
           onClick={() => setActiveTab("general")}
-          className={`pb-4 px-4 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${activeTab === "general" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          className={`pb-4 px-2 text-sm font-semibold tracking-wide whitespace-nowrap transition-all border-b-2 ${activeTab === "general" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
         >
           Account Details
         </button>
-        <button 
-          onClick={() => setActiveTab("career")}
-          className={`pb-4 px-4 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${activeTab === "career" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-        >
-          Career Preferences
-        </button>
+        {showCareerTab && (
+          <button 
+            onClick={() => setActiveTab("career")}
+            className={`pb-4 px-2 text-sm font-semibold tracking-wide whitespace-nowrap transition-all border-b-2 ${activeTab === "career" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            Career Preferences
+          </button>
+        )}
       </div>
 
       {/* Settings Form Container */}
-      <div className="rounded-[2.5rem] bg-card p-8 md:p-10 shadow-sm border border-border relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+      <div className="rounded-[2rem] bg-card/60 backdrop-blur-xl p-8 md:p-10 shadow-lg border border-border/50 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none transition-opacity">
           {activeTab === "general" ? (
-             <UserCircle size={150} strokeWidth={0.5} className="text-primary rotate-12" />
+             <UserCircle size={200} strokeWidth={0.5} className="text-primary rotate-12 -translate-y-8 translate-x-8" />
           ) : (
-             <Briefcase size={150} strokeWidth={0.5} className="text-primary rotate-12" />
+             <Briefcase size={200} strokeWidth={0.5} className="text-primary rotate-12 -translate-y-8 translate-x-8" />
           )}
         </div>
 

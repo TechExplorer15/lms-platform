@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { ArrowRight, PlayCircle, Star, Sparkles, BookOpen, Layers, Zap, Shield, Cpu, Code } from "lucide-react";
 import { Button } from "@/shared/ui/button";
@@ -31,8 +32,20 @@ const features = [
 ];
 
 function Home() {
+  const { user } = useSelector((state) => state.auth);
   const { data, isLoading } = useGetCoursesQuery();
   const realCourses = data?.data?.courses?.filter(c => c.status === 'published')?.slice(0, 3) || [];
+
+  const getDashboardLink = () => {
+    if (!user) return "/register";
+    const baseRole = user?.primaryType?.toLowerCase() || user?.role?.toLowerCase();
+    const isInstructor = baseRole === "instructor" || (baseRole === "user" && user?.capabilities?.canTeach);
+    
+    if (baseRole === "admin") return "/admin/dashboard";
+    if (baseRole === "employer") return "/employer/dashboard";
+    if (isInstructor) return "/instructor/dashboard";
+    return "/student/dashboard";
+  };
 
   return (
     <div className="relative overflow-x-hidden bg-background text-foreground font-sans w-full">
@@ -79,8 +92,8 @@ function Home() {
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
             <Button size="lg" className="h-14 px-10 text-lg font-medium rounded-full box-glow transition-transform hover:scale-105" asChild>
-              <Link to="/register">
-                Start Journey
+              <Link to={getDashboardLink()}>
+                {user ? "Go to Dashboard" : "Start Journey"}
                 <ArrowRight size={18} className="ml-2" />
               </Link>
             </Button>
@@ -229,7 +242,7 @@ function Home() {
             Join thousands of developers mastering modern stacks on our enterprise platform.
           </p>
           <Button size="lg" className="h-14 px-10 text-lg font-medium rounded-full box-glow transition-transform hover:scale-105" asChild>
-            <Link to="/register">Create an Account</Link>
+            <Link to={getDashboardLink()}>{user ? "Go to Dashboard" : "Create an Account"}</Link>
           </Button>
         </div>
       </section>

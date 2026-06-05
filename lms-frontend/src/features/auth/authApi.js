@@ -1,4 +1,5 @@
 import { apiSlice } from "@/services/apiSlice";
+import { setCredentials, updateUser } from "./authSlice";
 
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -42,9 +43,7 @@ export const authApi = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           if (data && data.success) {
-            import("./authSlice").then(({ setCredentials }) => {
-              dispatch(setCredentials({ token: data.data.token, user: data.data.user }));
-            });
+            dispatch(setCredentials({ token: data.data.token, user: data.data.user }));
           }
         } catch (error) {
           // Do nothing on verify fail (user just not logged in)
@@ -61,9 +60,7 @@ export const authApi = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           if (data && data.success) {
-            import("./authSlice").then(({ updateUser }) => {
-              dispatch(updateUser(data.data.profile));
-            });
+            dispatch(updateUser(data.data.profile));
           }
         } catch (error) {
           // fallback

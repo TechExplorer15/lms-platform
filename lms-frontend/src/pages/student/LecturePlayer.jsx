@@ -167,6 +167,19 @@ function LecturePlayer() {
                 </Button>
               </div>
             </div>
+
+            {/* Lecture Notes Section */}
+            {activeLecture?.notes && (
+              <div className="mt-8 pt-8 border-t border-border/30">
+                <div className="flex items-center gap-3 mb-6">
+                  <BookOpen size={20} className="text-primary" />
+                  <h3 className="text-xl font-semibold tracking-tight text-foreground">Lecture Notes</h3>
+                </div>
+                <div className="prose prose-invert max-w-none text-muted-foreground whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+                  {activeLecture.notes}
+                </div>
+              </div>
+            )}
           </motion.div>
 
         </div>
