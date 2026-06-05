@@ -92,12 +92,12 @@ function LecturePlayer() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#050505] text-foreground font-sans overflow-hidden">
+    <div className="relative min-h-screen bg-background text-foreground font-sans overflow-hidden">
       
       {/* Cinematic Ambient Background */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-5 pointer-events-none dark:opacity-10" />
 
       <div className="relative z-10 max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 grid gap-8 lg:grid-cols-12 items-start">
         
@@ -175,7 +175,7 @@ function LecturePlayer() {
                   <BookOpen size={20} className="text-primary" />
                   <h3 className="text-xl font-semibold tracking-tight text-foreground">Lecture Notes</h3>
                 </div>
-                <div className="prose prose-invert max-w-none text-muted-foreground whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+                <div className="prose prose-neutral dark:prose-invert max-w-none text-muted-foreground whitespace-pre-wrap leading-relaxed text-sm md:text-base">
                   {activeLecture.notes}
                 </div>
               </div>
