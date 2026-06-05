@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, Home as HomeIcon } from "lucide-react";
 
 import { logout } from "@/features/auth/authSlice";
 import { useLogoutMutation } from "@/features/auth/authApi";
@@ -118,11 +118,12 @@ function Navbar() {
           <Link
             to="/"
             className={`
-              px-2 py-2 text-sm font-bold uppercase tracking-widest transition-all
+              flex items-center gap-2 px-2 py-2 text-sm font-bold uppercase tracking-widest transition-all
               hover:text-primary relative group
               ${location.pathname === "/" ? "text-primary" : "text-muted-foreground"}
             `}
           >
+            <HomeIcon size={16} />
             Home
             {location.pathname === "/" && (
               <span className="absolute -bottom-1 left-1/2 w-1 h-1 bg-primary rounded-full -translate-x-1/2" />

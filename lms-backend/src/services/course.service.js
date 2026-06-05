@@ -24,7 +24,19 @@ class CourseService {
   }
 
   async getInstructorCourses(instructorId) {
-    return courseRepository.find({ instructor: instructorId });
+    const courses = await courseRepository.find({ instructor: instructorId });
+    const Enrollment = (await import("../models/enrollment.js")).default;
+    
+    // Attach enrollment counts and modules
+    const coursesWithStats = await Promise.all(
+      courses.map(async (course) => {
+        const enrollmentCount = await Enrollment.countDocuments({ course: course._id });
+        const modules = await Lecture.find({ course: course._id }).select("_id");
+        return { ...course.toObject(), enrollmentCount, modules };
+      })
+    );
+    
+    return coursesWithStats;
   }
 
   async createCourse(courseData, instructorId, thumbnail) {

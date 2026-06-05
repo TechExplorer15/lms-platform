@@ -80,52 +80,84 @@ export default function StudentAssignment() {
         
         {/* LEFT COLUMN: Brief and Criteria */}
         <div className="lg:col-span-7 space-y-8">
-          <Card className="border-border/50 shadow-sm">
-            <CardHeader className="bg-secondary/10 border-b border-border/50">
-              <CardTitle>Assignment Brief</CardTitle>
+          <Card className="border-border/40 bg-card/60 backdrop-blur-xl shadow-lg rounded-[2rem] overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none transition-opacity group-hover:opacity-10">
+              <FileText size={150} strokeWidth={0.5} className="text-primary rotate-12" />
+            </div>
+            <CardHeader className="bg-primary/5 border-b border-border/40 pb-6 pt-8 px-8">
+              <CardTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                  <FileText size={20} />
+                </div>
+                Assignment Brief
+              </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6 prose prose-neutral dark:prose-invert max-w-none">
+            <CardContent className="p-8 prose prose-neutral dark:prose-invert max-w-none relative z-10">
               <p className="text-lg leading-relaxed text-muted-foreground">{assignment.brief}</p>
               
-              <div className="mt-6 p-4 bg-card rounded-lg border border-border/50">
-                <a href={assignment.exampleOutputUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline font-medium">
-                  <ExternalLink size={16} />
-                  View Example Output
-                </a>
-              </div>
+              {assignment.exampleOutputUrl && (
+                <div className="mt-8 p-5 bg-card rounded-2xl border border-border/50 hover:border-primary/50 transition-colors duration-500 flex items-center justify-between group/link">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                      <Globe size={18} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-foreground m-0">Reference Output</h4>
+                      <p className="text-xs text-muted-foreground m-0">View the expected final result</p>
+                    </div>
+                  </div>
+                  <a href={assignment.exampleOutputUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline font-medium text-sm group-hover/link:text-primary/80 transition-colors">
+                    View <ExternalLink size={14} />
+                  </a>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 shadow-sm">
-            <CardHeader className="bg-secondary/10 border-b border-border/50">
-              <CardTitle>Acceptance Criteria</CardTitle>
-              <CardDescription>Your submission must meet all of these points to pass.</CardDescription>
+          <Card className="border-border/40 bg-card/60 backdrop-blur-xl shadow-lg rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-secondary/5 border-b border-border/40 pb-6 pt-8 px-8">
+              <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-3">
+                <div className="p-2 bg-secondary/20 rounded-xl text-secondary-foreground">
+                  <CheckCircle2 size={20} />
+                </div>
+                Acceptance Criteria
+              </CardTitle>
+              <CardDescription className="text-base mt-2">Your submission must meet all of these points to pass.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-6 space-y-4">
+            <CardContent className="p-8 space-y-4">
               {assignment.acceptanceCriteria.map((crit, idx) => (
-                <div key={idx} className="flex gap-3">
-                  <div className="mt-0.5 min-w-5 h-5 rounded-full bg-secondary text-xs flex items-center justify-center font-bold">{idx + 1}</div>
-                  <p className="text-foreground">{crit}</p>
+                <div key={idx} className="flex gap-4 p-4 rounded-2xl bg-card border border-border/30 hover:border-secondary/30 transition-colors">
+                  <div className="mt-0.5 shrink-0 w-8 h-8 rounded-full bg-secondary/20 text-secondary-foreground flex items-center justify-center font-bold text-sm">
+                    {idx + 1}
+                  </div>
+                  <p className="text-foreground leading-relaxed pt-1">{crit}</p>
                 </div>
               ))}
             </CardContent>
           </Card>
 
-          <Card className="border-destructive/20 bg-destructive/5 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-destructive flex items-center gap-2">
-                <AlertTriangle size={20} />
-                Common Mistakes (Avoid These!)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-                {assignment.commonMistakes.map((mistake, idx) => (
-                  <li key={idx}>{mistake}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          {assignment.commonMistakes?.length > 0 && (
+            <Card className="border-destructive/20 bg-destructive/5 shadow-lg rounded-[2rem] overflow-hidden">
+              <CardHeader className="pb-6 pt-8 px-8 border-b border-destructive/10">
+                <CardTitle className="text-destructive flex items-center gap-3 text-xl font-bold tracking-tight">
+                  <div className="p-2 bg-destructive/10 rounded-xl">
+                    <AlertTriangle size={20} />
+                  </div>
+                  Common Mistakes (Avoid These!)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8">
+                <ul className="space-y-3 text-muted-foreground">
+                  {assignment.commonMistakes.map((mistake, idx) => (
+                    <li key={idx} className="flex gap-3">
+                      <span className="text-destructive mt-1 shrink-0">&times;</span>
+                      <span className="leading-relaxed">{mistake}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* RIGHT COLUMN: Submission Panel */}
