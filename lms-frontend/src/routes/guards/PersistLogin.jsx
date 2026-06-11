@@ -15,11 +15,11 @@ const PersistLogin = ({ children }) => {
   });
 
   useEffect(() => {
-    // Artificial delay to let the Framer Motion animation play out
-    // Reduced to 2400ms since the animation is much snappier now
+    // Artificial delay reduced drastically to make platform load instantly 
+    // after auth check completes.
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2400); 
+    }, 500); 
 
     return () => clearTimeout(timer);
   }, []);
