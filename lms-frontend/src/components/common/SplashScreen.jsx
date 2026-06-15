@@ -5,12 +5,12 @@ const SplashScreen = () => {
   // Animation variants for drawing the paths
   const draw = {
     hidden: { pathLength: 0, opacity: 0 },
-    visible: (i) => {
+    visible: ({ i, targetOpacity = 1 }) => {
       // Much faster, tighter drawing sequence
       const delay = 0.3 + i * 0.2; 
       return {
         pathLength: 1,
-        opacity: 1,
+        opacity: targetOpacity,
         transition: {
           pathLength: { delay, type: "spring", duration: 1.2, bounce: 0 },
           opacity: { delay, duration: 0.1 },
@@ -42,8 +42,8 @@ const SplashScreen = () => {
       >
         {/* Animated SVG Logo */}
         <motion.svg
-          width="160"
-          height="160"
+          width="180"
+          height="180"
           viewBox="0 0 48 48"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -53,11 +53,11 @@ const SplashScreen = () => {
           <motion.path
             d="M13 6 L13 42"
             stroke="currentColor"
-            strokeWidth="3.5"
+            strokeWidth="4"
             strokeLinecap="round"
             className="text-foreground"
             variants={draw}
-            custom={0}
+            custom={{ i: 0 }}
             initial="hidden"
             animate="visible"
           />
@@ -66,12 +66,11 @@ const SplashScreen = () => {
           <motion.path
             d="M13 24 L33 42"
             stroke="currentColor"
-            strokeWidth="3.5"
+            strokeWidth="4"
             strokeLinecap="round"
             className="text-foreground"
-            opacity=".28"
             variants={draw}
-            custom={1}
+            custom={{ i: 1, targetOpacity: 0.28 }}
             initial="hidden"
             animate="visible"
           />
@@ -80,10 +79,10 @@ const SplashScreen = () => {
           <motion.path
             d="M13 24 L31 7"
             stroke="#4F8EFF"
-            strokeWidth="3.5"
+            strokeWidth="4"
             strokeLinecap="round"
             variants={draw}
-            custom={2}
+            custom={{ i: 2 }}
             initial="hidden"
             animate="visible"
           />
@@ -92,12 +91,12 @@ const SplashScreen = () => {
           <motion.path
             d="M24 6 L31 7 L30 15"
             stroke="#4F8EFF"
-            strokeWidth="2.4"
+            strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
             variants={draw}
-            custom={3}
+            custom={{ i: 3 }}
             initial="hidden"
             animate="visible"
           />
@@ -105,11 +104,11 @@ const SplashScreen = () => {
 
         {/* Brand Name Text fading in - Sped up! */}
         <motion.div
-          initial={{ opacity: 0, y: 15, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <h1 className="text-4xl font-bold tracking-widest text-foreground flex items-center gap-2">
+          <h1 className="text-5xl font-bold tracking-widest text-foreground flex items-center gap-2">
             kriya
           </h1>
         </motion.div>
@@ -119,7 +118,7 @@ const SplashScreen = () => {
           initial={{ opacity: 0, width: "0%" }}
           animate={{ opacity: 1, width: "100%" }}
           transition={{ duration: 2, delay: 0.4 }}
-          className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-[2px] w-48 bg-border overflow-hidden rounded-full"
+          className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-[2px] w-56 bg-border overflow-hidden rounded-full"
         >
           <motion.div 
             initial={{ x: "-100%" }}

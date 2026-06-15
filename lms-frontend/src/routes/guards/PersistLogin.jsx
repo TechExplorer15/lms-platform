@@ -15,11 +15,11 @@ const PersistLogin = ({ children }) => {
   });
 
   useEffect(() => {
-    // Artificial delay reduced drastically to make platform load instantly 
-    // after auth check completes.
+    // Enforce a minimum display time so the intro animation finishes playing
+    // The animation takes roughly 2.5 seconds to complete.
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 500); 
+    }, 2500); 
 
     return () => clearTimeout(timer);
   }, []);
