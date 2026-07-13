@@ -32,32 +32,32 @@ function isHealthy(provider) {
 
 const ROUTING = {
   ASSIGNMENT_GENERATION: {
-    primary:   'GEMINI',
-    fallbacks: ['GROQ'],
+    primary:   'GROQ',
+    fallbacks: ['GEMINI'],
     timeout:   30000,
     critical:  false
   },
   ASSIGNMENT_REVIEW: {
-    primary:   'GEMINI',
-    fallbacks: ['GROQ'],
+    primary:   'GROQ',
+    fallbacks: ['GEMINI'],
     timeout:   20000,
     critical:  true
   },
   CAREER_PATH: {
-    primary:   'GEMINI',
-    fallbacks: ['GROQ'],
+    primary:   'GROQ',
+    fallbacks: ['GEMINI'],
     timeout:   90000,
     critical:  true
   },
   RESOURCE_CURATION: {
-    primary:   'GEMINI',
-    fallbacks: ['GROQ'],
+    primary:   'GROQ',
+    fallbacks: ['GEMINI'],
     timeout:   15000,
     critical:  false
   },
   COMPANION_MESSAGE: {
-    primary:   'GEMINI',
-    fallbacks: ['GROQ'],
+    primary:   'GROQ',
+    fallbacks: ['GEMINI'],
     timeout:   20000,
     critical:  false
   }
@@ -74,12 +74,15 @@ class AIRouterService {
         return await aiService.generateRoadmapGemini(payload.profile);
       }
       if (jobType === 'RESOURCE_CURATION') {
+        if (provider === 'GROQ') return await aiService.generateResourcesGroq(payload.skillTag, payload.nodeTitle, payload.nodeDescription);
         return await aiService.generateResourcesGemini(payload.skillTag, payload.nodeTitle, payload.nodeDescription);
       }
       if (jobType === 'ASSIGNMENT_GENERATION') {
+        if (provider === 'GROQ') return await aiService.generateAssignmentGroq(payload.nodeTitle, payload.nodeDescription, payload.skillTag);
         return await aiService.generateAssignmentGemini(payload.nodeTitle, payload.nodeDescription, payload.skillTag);
       }
       if (jobType === 'ASSIGNMENT_REVIEW') {
+        if (provider === 'GROQ') return await aiService.evaluateSubmissionGroq(payload.assignment, payload.rawContent, payload.isOriginal);
         return await aiService.evaluateSubmissionGemini(payload.assignment, payload.rawContent, payload.isOriginal);
       }
       if (jobType === 'COMPANION_MESSAGE') {

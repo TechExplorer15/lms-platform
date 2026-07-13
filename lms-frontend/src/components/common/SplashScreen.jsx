@@ -7,12 +7,12 @@ const SplashScreen = () => {
     hidden: { pathLength: 0, opacity: 0 },
     visible: ({ i, targetOpacity = 1 }) => {
       // Much faster, tighter drawing sequence
-      const delay = 0.3 + i * 0.2; 
+      const delay = 0.1 + i * 0.1; 
       return {
         pathLength: 1,
         opacity: targetOpacity,
         transition: {
-          pathLength: { delay, type: "spring", duration: 1.2, bounce: 0 },
+          pathLength: { delay, type: "spring", duration: 0.6, bounce: 0 },
           opacity: { delay, duration: 0.1 },
         },
       };
@@ -26,18 +26,18 @@ const SplashScreen = () => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 0.15, scale: 1 }}
-        transition={{ duration: 1.5, delay: 0.2 }}
+        transition={{ duration: 0.8, delay: 0.1 }}
         className="absolute w-[40vw] h-[40vw] bg-primary/40 rounded-full blur-[100px] pointer-events-none"
       />
 
-      <motion.div
-        initial={{ rotateX: 45, rotateY: -15, scale: 0.8, opacity: 0 }}
-        animate={{ rotateX: 0, rotateY: 0, scale: 1, opacity: 1 }}
-        transition={{ 
-          duration: 1.2, 
-          ease: "easeOut",
-          delay: 0.1 
-        }}
+        <motion.div
+          initial={{ rotateX: 45, rotateY: -15, scale: 0.8, opacity: 0 }}
+          animate={{ rotateX: 0, rotateY: 0, scale: 1, opacity: 1 }}
+          transition={{ 
+            duration: 0.8, 
+            ease: "easeOut",
+            delay: 0.1 
+          }}
         className="relative flex flex-col items-center gap-6 perspective-1000"
       >
         {/* Animated SVG Logo */}
@@ -106,7 +106,7 @@ const SplashScreen = () => {
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
         >
           <h1 className="text-5xl font-bold tracking-widest text-foreground flex items-center gap-2">
             kriya
@@ -117,13 +117,13 @@ const SplashScreen = () => {
         <motion.div 
           initial={{ opacity: 0, width: "0%" }}
           animate={{ opacity: 1, width: "100%" }}
-          transition={{ duration: 2, delay: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-[2px] w-56 bg-border overflow-hidden rounded-full"
         >
           <motion.div 
             initial={{ x: "-100%" }}
             animate={{ x: "200%" }}
-            transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+            transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
             className="w-1/2 h-full bg-primary/50"
           />
         </motion.div>

@@ -16,10 +16,10 @@ const PersistLogin = ({ children }) => {
 
   useEffect(() => {
     // Enforce a minimum display time so the intro animation finishes playing
-    // The animation takes roughly 2.5 seconds to complete.
+    // The animation is sped up and takes roughly 1.0 second to complete.
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2500); 
+    }, 1000); 
 
     return () => clearTimeout(timer);
   }, []);

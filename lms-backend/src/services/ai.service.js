@@ -235,6 +235,52 @@ class AIService {
     return this.generateRoadmapGroq(profile);
   }
 
+  // ─── DYNAMIC RESOURCE GENERATOR (GROQ) ────────────────────────────────
+  async generateResourcesGroq(skillTag, nodeTitle, nodeDescription) {
+    console.log(`[Resource Gen] Generating links for ${skillTag} (Groq)...`);
+    const prompt = `
+      You are an elite internet resource curator. 
+      Find the single best free resource in each of these 4 categories for learning:
+      Topic: ${nodeTitle || skillTag}
+      Description: ${nodeDescription || "Mastering the core concepts"}
+      
+      1. Official documentation (from: ${TRUSTED_SOURCES.docs.join(", ")})
+      2. Video under 25 minutes (from: ${TRUSTED_SOURCES.video.join(", ")})  
+      3. Written tutorial (from: ${TRUSTED_SOURCES.read.join(", ")})
+      4. Interactive practice (from: ${TRUSTED_SOURCES.practice.join(", ")})
+
+      CRITICAL RULES:
+      - Return exactly 4 resources, one of each category (documentation, video, article, interactive).
+      - Do NOT hallucinate video IDs or specific URL paths if you are not 100% sure they exist. 
+      - If you do not know an exact, valid URL, you MUST return a valid search URL instead (e.g., "https://www.youtube.com/results?search_query=react+hooks+tutorial" or "https://dev.to/search?q=react+hooks").
+      - Output ONLY a JSON object containing a "resources" array with exactly 4 objects. No markdown wrapper.
+      
+      For each resource return this exact schema:
+      {
+        "title": "String - Specific title of the resource",
+        "url": "String - The URL",
+        "type": "String - 'documentation' | 'video' | 'article' | 'interactive'",
+        "sourceName": "String - e.g. 'Traversy Media' or 'React Docs'",
+        "estimatedTime": "String - e.g. '15 mins' or '2 hours'",
+        "description": "String - One sentence: what specifically to learn from this for someone doing ${nodeDescription}"
+      }
+    `;
+    
+    try {
+      const completion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama-3.1-8b-instant",
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+      });
+      let parsed = JSON.parse(this._cleanJson(completion.choices[0].message.content));
+      if (parsed.resources) parsed = parsed.resources;
+      return resourceSchema.parse(parsed);
+    } catch (error) {
+      throw error; 
+    }
+  }
+
   // ─── DYNAMIC RESOURCE GENERATOR (GEMINI) ────────────────────────────────
   async generateResourcesGemini(skillTag, nodeTitle, nodeDescription) {
     console.log(`[Resource Gen] Generating links for ${skillTag}...`);
@@ -274,6 +320,54 @@ class AIService {
       return resourceSchema.parse(parsed);
     } catch (error) {
       throw error; // Throw so the router catches it and fails over or uses fallback
+    }
+  }
+
+  // ─── DYNAMIC ASSIGNMENT GENERATOR (GROQ) ──────────────────────────────
+  async generateAssignmentGroq(nodeTitle, nodeDescription, skillTag) {
+    console.log(`[Assignment Gen] Generating assignment for ${skillTag} (Groq)...`);
+    const prompt = `
+      You are an expert technical instructor.
+      Create a highly engaging, hands-on assignment for a student learning:
+      Topic: ${nodeTitle}
+      Description: ${nodeDescription}
+      Skill Tag: ${skillTag}
+
+      CRITICAL RULES:
+      1. Output ONLY a valid JSON object matching the exact schema below.
+      2. No markdown wrappers around the JSON.
+      3. The assignment should take between 30 and 120 minutes.
+      4. "acceptedFormat" must be one of: "github", "url", "document".
+
+      Schema:
+      {
+        "title": "A catchy title",
+        "brief": "A detailed 2-3 paragraph explanation of what they need to build and why.",
+        "timeEstimateMinutes": number,
+        "acceptedFormat": "github" | "url" | "document",
+        "acceptanceCriteria": ["Criterion 1", "Criterion 2", "Criterion 3", "Criterion 4"],
+        "commonMistakes": ["Mistake 1", "Mistake 2"],
+        "exampleOutputUrl": "A realistic example URL (optional, can be empty string)"
+      }
+    `;
+
+    try {
+      const completion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama-3.1-8b-instant",
+        response_format: { type: "json_object" },
+        temperature: 0.8,
+      });
+      const parsed = JSON.parse(this._cleanJson(completion.choices[0].message.content));
+      
+      // Basic validation
+      if (!parsed.title || !parsed.brief || !parsed.acceptanceCriteria) {
+        throw new Error("AI returned invalid assignment schema");
+      }
+      return parsed;
+    } catch (error) {
+      console.error("AI Assignment Gen (Groq) failed:", error.message);
+      throw error;
     }
   }
 
@@ -319,6 +413,69 @@ class AIService {
     } catch (error) {
       console.error("AI Assignment Gen failed:", error.message);
       throw error;
+    }
+  }
+
+  // ─── ASSIGNMENT EVALUATOR (GROQ) ──────────────────────────────────────
+  async evaluateSubmissionGroq(assignment, rawContent, isOriginal) {
+    console.log(`[AI Evaluator] Evaluating submission for ${assignment.title} (Groq)`);
+    
+    if (!isOriginal) {
+      console.warn("[AI Evaluator] Submission marked as unoriginal prior to AI review.");
+    }
+
+    const prompt = `
+      You are an elite Senior Staff Software Engineer and rigorous Code Reviewer.
+      Your task is to evaluate a student's submission against strict acceptance criteria.
+
+      ASSIGNMENT: ${assignment.title}
+      SKILL FOCUS: ${assignment.skillTag}
+      BRIEF: ${assignment.brief}
+      
+      ACCEPTANCE CRITERIA:
+      ${assignment.acceptanceCriteria.map((c, i) => `${i + 1}. ${c}`).join('\n')}
+
+      STUDENT SUBMISSION RAW CONTENT:
+      \`\`\`
+      ${rawContent}
+      \`\`\`
+
+      RULES FOR EVALUATION:
+      1. If the submission does not contain relevant code/content to fulfill the brief, score it low (0-40) and fail it.
+      2. If it meets all criteria perfectly, score it 90-100.
+      3. For each criterion in the acceptance criteria, explicitly determine if it is "met" or "not_met" and provide a 1-2 sentence specific "reason" referencing the student's code.
+      4. "skillLevel" must be mapped roughly to score: <70 (none), 70-79 (beginner), 80-89 (intermediate), 90-100 (advanced).
+      5. "status" must be "passed" (score >= 70 AND all core criteria met), "failed" (score < 70 OR missing core criteria), or "flagged_for_review" (borderline 60-69, or if the code looks like cheating or is too complex for you to decide).
+      ${!isOriginal ? '6. THE SYSTEM DETECTED PLAGIARISM/DUPLICATE. You must cap the score at 0 and fail the submission immediately.' : ''}
+
+      Output ONLY a valid JSON object matching this EXACT schema. No markdown wrappers.
+      {
+        "score": number (0-100),
+        "skillLevel": "none" | "beginner" | "intermediate" | "advanced",
+        "status": "passed" | "failed" | "flagged_for_review",
+        "criteriaVerdicts": [
+          { "criterion": "Exact text of the criterion", "status": "met" | "not_met", "reason": "Specific reason citing code" }
+        ],
+        "strengths": ["string", "string"],
+        "improvements": ["string", "string"]
+      }
+    `;
+
+    try {
+      // Use 70b versatile for deep code reasoning and larger context windows
+      const completion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama-3.3-70b-versatile",
+        response_format: { type: "json_object" },
+        temperature: 0.4,
+      });
+      const parsed = JSON.parse(this._cleanJson(completion.choices[0].message.content));
+      
+      // Enforce schema
+      return evaluationSchema.parse(parsed);
+    } catch (error) {
+      console.error("AI Evaluation (Groq) failed:", error.message);
+      throw new AppError("Failed to automatically evaluate submission. It has been flagged for manual instructor review.", 500);
     }
   }
 
