@@ -261,7 +261,11 @@ function StudentDashboard() {
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-foreground text-sm">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{new Date(activity.timestamp).toLocaleDateString()} at {new Date(activity.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {activity.timestamp && !isNaN(new Date(activity.timestamp).getTime()) 
+                        ? `${new Date(activity.timestamp).toLocaleDateString()} at ${new Date(activity.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
+                        : "Recently"}
+                    </p>
                   </div>
                 </div>
               ))

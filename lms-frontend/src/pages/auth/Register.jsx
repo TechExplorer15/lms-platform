@@ -61,7 +61,11 @@ function Register() {
     if (!validate()) return;
 
     try {
-      await register(formData).unwrap();
+      const response = await register(formData).unwrap();
+
+      if (response.data?.refreshToken) {
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+      }
 
       toast.success("Account created successfully");
 

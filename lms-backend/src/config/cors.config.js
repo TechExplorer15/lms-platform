@@ -4,9 +4,14 @@
  * The old config allowed ANY origin — this fixes that security gap.
  */
 
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:5173",
-];
+  frontendUrl,
+  frontendUrl.replace("https://", "https://www."),
+  frontendUrl.replace("https://www.", "https://"),
+  frontendUrl.replace("http://", "https://"),
+  "http://localhost:5173",
+].filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {

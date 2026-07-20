@@ -22,10 +22,12 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 
   if (result.error && result.error.status === 401 && !isAuthEndpoint) {
     // Try to get a new token via refresh endpoint
+    const localRefreshToken = localStorage.getItem("refreshToken");
     const refreshResult = await baseQuery(
       {
         url: "/auth/refresh",
         method: "GET",
+        headers: localRefreshToken ? { "x-refresh-token": localRefreshToken } : {},
         credentials: "include", // Only send cookies here
       },
       api,
@@ -33,6 +35,9 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     );
 
     if (refreshResult.data && refreshResult.data.success) {
+      if (refreshResult.data.data.refreshToken) {
+        localStorage.setItem("refreshToken", refreshResult.data.data.refreshToken);
+      }
       // Store the new token and user
       const newToken = refreshResult.data.data.token;
       const newUser = refreshResult.data.data.user || api.getState().auth.user;

@@ -32,6 +32,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   sendCreated(res, {
     message: "User registered successfully",
     token: accessToken,
+    refreshToken,
     user,
   });
 });
@@ -46,13 +47,14 @@ export const loginUser = asyncHandler(async (req, res) => {
   sendSuccess(res, {
     message: "Login successful",
     token: accessToken,
+    refreshToken,
     user,
   });
 });
 
 // ─── REFRESH TOKEN ───────────────────────────────────────────────
 export const refreshToken = asyncHandler(async (req, res) => {
-  const oldToken = req.cookies?.refreshToken;
+  const oldToken = req.cookies?.refreshToken || req.headers["x-refresh-token"];
   
   const { accessToken, refreshToken: newRefreshToken, user } = await authService.refresh(oldToken);
 
@@ -61,13 +63,14 @@ export const refreshToken = asyncHandler(async (req, res) => {
   sendSuccess(res, {
     message: "Token refreshed successfully",
     token: accessToken,
+    refreshToken: newRefreshToken,
     user,
   });
 });
 
 // ─── LOGOUT ──────────────────────────────────────────────────────
 export const logoutUser = asyncHandler(async (req, res) => {
-  const token = req.cookies?.refreshToken;
+  const token = req.cookies?.refreshToken || req.headers["x-refresh-token"];
   
   if (token && req.user) {
     await authService.logout(req.user.id, token);

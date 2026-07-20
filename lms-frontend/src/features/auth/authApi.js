@@ -38,11 +38,18 @@ export const authApi = apiSlice.injectEndpoints({
       }),
     }),
     verifyAuth: builder.query({
-      query: () => "/auth/refresh",
+      query: () => ({
+        url: "/auth/refresh",
+        method: "GET",
+        headers: localStorage.getItem("refreshToken") ? { "x-refresh-token": localStorage.getItem("refreshToken") } : {},
+      }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           if (data && data.success) {
+            if (data.data.refreshToken) {
+              localStorage.setItem("refreshToken", data.data.refreshToken);
+            }
             dispatch(setCredentials({ token: data.data.token, user: data.data.user }));
           }
         } catch (error) {

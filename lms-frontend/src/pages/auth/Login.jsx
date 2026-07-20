@@ -57,6 +57,10 @@ function Login() {
     try {
       const response = await login(formData).unwrap();
 
+      if (response.data.refreshToken) {
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+      }
+
       dispatch(
         setCredentials({
           user: response.data.user,
